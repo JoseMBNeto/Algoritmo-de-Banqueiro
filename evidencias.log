@@ -24,3 +24,37 @@ available = 10
 [?2004lexit
 
 Script done on 2026-11-10 16:57:54-03:00 [COMMAND_EXIT_CODE="1"]
+Script started on 2026-11-10 17:48:36-03:00 [COMMAND="date; whoami; pwd; bash" TERM="xterm-256color" TTY="/dev/pts/2" COLUMNS="173" LINES="24"]
+Tue Nov 10 17:48:36 -03 2026
+miltonlnx
+/home/miltonlnx/Infra-SFT/Algoritmo_Banqueiro/jmbn
+[?2004h]0;miltonlnx@Miltoneto: ~/Infra-SFT/Algoritmo_Banqueiro/jmbn[01;32mmiltonlnx@Miltoneto[00m:[01;34m~/Infra-SFT/Algoritmo_Banqueiro/jmbn[00m$ make
+[?2004lmake[1]: Entering directory '/home/miltonlnx/Infra-SFT/Algoritmo_Banqueiro/jmbn'
+gcc -Wall -Wextra -std=c99 -pedantic -c main.c
+gcc -Wall -Wextra -std=c99 -pedantic -c banker.c
+gcc -Wall -Wextra -std=c99 -pedantic -c entrada.c
+gcc -Wall -Wextra -std=c99 -pedantic -o banker main.o banker.o entrada.o
+make[1]: Leaving directory '/home/miltonlnx/Infra-SFT/Algoritmo_Banqueiro/jmbn'
+[?2004h]0;miltonlnx@Miltoneto: ~/Infra-SFT/Algoritmo_Banqueiro/jmbn[01;32mmiltonlnx@Miltoneto[00m:[01;34m~/Infra-SFT/Algoritmo_Banqueiro/jmbn[00m$ ./banker
+[?2004lError: no resources were given.
+Usage: ./banker <instances of resource 1> <instances of resource 2> ...
+[?2004h]0;miltonlnx@Miltoneto: ~/Infra-SFT/Algoritmo_Banqueiro/jmbn[01;32mmiltonlnx@Miltoneto[00m:[01;34m~/Infra-SFT/Algoritmo_Banqueiro/jmbn[00m$ ./banker 10 5 7
+[?2004lnum_recursos = 3
+available = 10 5 7
+num_clientes = 5
+maximum:
+ 7 5 3
+ 3 2 2
+ 9 0 2
+ 2 2 2
+ 4 3 3
+[?2004h]0;miltonlnx@Miltoneto: ~/Infra-SFT/Algoritmo_Banqueiro/jmbn[01;32mmiltonlnx@Miltoneto[00m:[01;34m~/Infra-SFT/Algoritmo_Banqueiro/jmbn[00m$ ./banker 10
+[?2004lError: customer.txt line 1: expected 1 values (one per resource given on the command line), but found 3.
+[?2004h]0;miltonlnx@Miltoneto: ~/Infra-SFT/Algoritmo_Banqueiro/jmbn[01;32mmiltonlnx@Miltoneto[00m:[01;34m~/Infra-SFT/Algoritmo_Banqueiro/jmbn[00m$ ./banker 10 5
+[?2004lError: customer.txt line 1: expected 2 values (one per resource given on the command line), but found 3.
+[?2004h]0;miltonlnx@Miltoneto: ~/Infra-SFT/Algoritmo_Banqueiro/jmbn[01;32mmiltonlnx@Miltoneto[00m:[01;34m~/Infra-SFT/Algoritmo_Banqueiro/jmbn[00m$ ./banker 10   7
+[?2004lError: customer.txt line 1: expected 2 values (one per resource given on the command line), but found 3.
+[?2004h]0;miltonlnx@Miltoneto: ~/Infra-SFT/Algoritmo_Banqueiro/jmbn[01;32mmiltonlnx@Miltoneto[00m:[01;34m~/Infra-SFT/Algoritmo_Banqueiro/jmbn[00m$ exit
+[?2004lexit
+
+Script done on 2026-11-10 17:49:21-03:00 [COMMAND_EXIT_CODE="1"]
