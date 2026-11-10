@@ -23,4 +23,4 @@ log:
 clean:
 	rm -f $(TARGET) $(OBJS)
 
-.PHONY: all clean
+.PHONY: all clean log
