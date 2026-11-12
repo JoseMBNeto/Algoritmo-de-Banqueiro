@@ -255,3 +255,128 @@ int **ler_clientes(const char *nome_arquivo, int num_recursos, int *num_clientes
     *num_clientes = n;
     return maximum;
 }
+
+static int interpreta_comando(char *linha, int num_linha, const char *nome_arquivo, Banco *banco, int *valores, char *tipo){
+    int m = banco->num_recursos;
+    int campos;
+    char *invalido;
+
+    if (strcmp(linha, "*") == 0){
+        *tipo = '*';
+        return 1;
+    }
+
+    if (linha[0] == 'R' && (linha[1] == 'Q' || linha[1] == 'L') && (linha[2] == ' ' || linha[2] == '\0')){
+        *tipo = linha[1];
+    }else{
+        fprintf(stderr, "Error: %s line %d: unknown command \"%s\" (expected RQ, RL or *).\n", nome_arquivo, num_linha, linha);
+        return 0;
+    }
+
+    if (linha[2] == '\0'){
+        campos = 0;
+    }else{
+        campos = conta_campos(linha + 3, ' ');
+    }
+
+    if (campos != m + 1){
+        fprintf(stderr, "Error: %s line %d: expected %d values after R%c (customer number + %d resources given on the command line), but found %d.\n", nome_arquivo, num_linha, m + 1, *tipo, m, campos);
+        return 0;
+    }
+
+    if (!converte_campos(linha + 3, ' ', valores, campos, &invalido)){
+        fprintf(stderr, "Error: %s line %d: \"%s\" is not a valid non-negative integer.\n", nome_arquivo, num_linha, invalido);
+        return 0;
+    }
+
+    if (valores[0] >= banco->num_clientes){
+        fprintf(stderr, "Error: %s line %d: customer %d does not exist (valid customers: 0 to %d).\n", nome_arquivo, num_linha, valores[0], banco->num_clientes - 1);
+        return 0;
+    }
+
+    return 1;
+}
+
+static int passada_comandos(FILE *arquivo, const char *nome_arquivo, Banco *banco, FILE *saida, int *valores){
+    char linha[TAMANHO_LINHA];
+    int num_linha = 0;
+    int comandos = 0;
+    int primeira_vazia = 0;
+    int status;
+
+    while ((status = le_linha(arquivo, linha, TAMANHO_LINHA)) != FIM_DO_ARQUIVO){
+        char tipo;
+        num_linha++;
+
+        if (status == LINHA_GRANDE){
+            fprintf(stderr, "Error: %s line %d: line is too long (limit is %d characters).\n", nome_arquivo, num_linha, TAMANHO_LINHA - 2);
+            return -1;
+        }
+
+        if (linha[0] == '\0'){
+            if (primeira_vazia == 0){
+                primeira_vazia = num_linha;
+            }
+            continue;
+        }
+
+        if (primeira_vazia != 0){
+            fprintf(stderr, "Error: %s line %d: empty line (empty lines are only allowed at the end of the file).\n", nome_arquivo, primeira_vazia);
+            return -1;
+        }
+
+        if (!interpreta_comando(linha, num_linha, nome_arquivo, banco, valores, &tipo)){
+            return -1;
+        }
+
+        if (saida != NULL){
+            if (tipo == 'Q'){
+                processa_requisicao(banco, valores[0], valores + 1, saida);
+            }else if (tipo == 'L'){
+                processa_liberacao(banco, valores[0], valores + 1, saida);
+            }else{
+                imprime_estado(banco, saida);
+            }
+        }
+
+        comandos++;
+    }
+
+    if (ferror(arquivo)){
+        fprintf(stderr, "Error: could not read %s.\n", nome_arquivo);
+        return -1;
+    }
+
+    return comandos;
+}
+
+int processa_comandos(const char *nome_arquivo, Banco *banco, FILE *saida){
+    FILE *arquivo;
+    int *valores;
+    int comandos;
+
+    arquivo = fopen(nome_arquivo, "r");
+    if (arquivo == NULL){
+        fprintf(stderr, "Error: could not open %s (it does not exist or cannot be read).\n", nome_arquivo);
+        return -1;
+    }
+
+    valores = malloc((banco->num_recursos + 1) * sizeof(int));
+    if (valores == NULL){
+        fprintf(stderr, "Error: not enough memory.\n");
+        fclose(arquivo);
+        return -1;
+    }
+
+    comandos = passada_comandos(arquivo, nome_arquivo, banco, saida, valores);
+
+    free(valores);
+    fclose(arquivo);
+
+    if (comandos == 0){
+        fprintf(stderr, "Error: %s has no commands.\n", nome_arquivo);
+        return -1;
+    }
+
+    return comandos;
+}
