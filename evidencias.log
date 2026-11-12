@@ -142,3 +142,565 @@ The customer 0 release 0 2 0 was denied because exceed its allocation
 [?2004lexit
 
 Script done on 2026-11-12 15:06:16-03:00 [COMMAND_EXIT_CODE="0"]
+Script started on 2026-11-12 17:08:22-03:00 [COMMAND="date; whoami; pwd; bash testes.sh" TERM="xterm-256color" TTY="/dev/pts/4" COLUMNS="173" LINES="15"]
+Thu Nov 12 17:08:22 -03 2026
+miltonlnx
+/home/miltonlnx/Infra-SFT/Algoritmo_Banqueiro/jmbn
+==============================================================
+ 1. EXEMPLO DO PROFESSOR
+==============================================================
+--------------------------------------------------------------
+TESTE: arquivos do professor
+$ ./banker 10 5 7
+>> OK (codigo de saida 0)
+result.txt:
+Allocate to customer 0 the resources 0 2 1
+Allocate to customer 2 the resources 3 0 2
+Allocate to customer 1 the resources 2 0 0
+Allocate to customer 4 the resources 0 0 2
+Release from customer 0 the resources 0 1 1
+Allocate to customer 3 the resources 2 1 1
+MAXIMUM   |   ALLOCATION  |   NEED
+7 5 3     |   0 1 0       |   7 4 3 
+3 2 2     |   2 0 0       |   1 2 2 
+9 0 2     |   3 0 2       |   6 0 0 
+2 2 2     |   2 1 1       |   0 1 1 
+4 3 3     |   0 0 2       |   4 3 1 
+AVAILABLE 3 3 2 
+The resources 3 3 2 are not enough to customer 4 request 4 0 0 
+Allocate to customer 1 the resources 1 0 2
+The customer 0 request 0 2 0 was denied because result in an unsafe state
+The customer 2 request 0 1 0 was denied because exceed its maximum allocation
+$ diff result.txt esperado.txt
+>> OK: result.txt bate com o modelo do professor
+==============================================================
+ 2. ARGUMENTOS DA LINHA DE COMANDO
+==============================================================
+--------------------------------------------------------------
+TESTE: sem argumentos
+$ ./banker 
+Error: no resources were given.
+Usage: ./banker <instances of resource 1> <instances of resource 2> ...
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: argumento com letra
+$ ./banker 10 abc 7
+Error: argument 2 ("abc") is not a valid non-negative integer.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: argumento negativo
+$ ./banker 10 -5 7
+Error: argument 2 ("-5") is not a valid non-negative integer.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: argumento decimal
+$ ./banker 10 5.5 7
+Error: argument 2 ("5.5") is not a valid non-negative integer.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: argumento com sinal +
+$ ./banker 10 +5 7
+Error: argument 2 ("+5") is not a valid non-negative integer.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: argumento maior que um int
+$ ./banker 10 5 2147483648
+Error: argument 3 ("2147483648") is not a valid non-negative integer.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: recursos a menos que o arquivo
+$ ./banker 10 5
+Error: customer.txt line 1: expected 2 values (one per resource given on the command line), but found 3.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: recursos a mais que o arquivo
+$ ./banker 10 5 7 1
+Error: customer.txt line 1: expected 4 values (one per resource given on the command line), but found 3.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: recurso com 0 instancias (valido)
+$ ./banker 0 0 0
+>> OK (codigo de saida 0)
+result.txt:
+Allocate to customer 0 the resources 0 0 0
+MAXIMUM   |   ALLOCATION  |   NEED
+0 0 0     |   0 0 0       |   0 0 0 
+AVAILABLE 0 0 0 
+==============================================================
+ 3. customer.txt
+==============================================================
+--------------------------------------------------------------
+TESTE: customer.txt nao existe
+$ ./banker 10 5 7
+Error: could not open customer.txt (it does not exist or cannot be read).
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: customer.txt vazio
+$ ./banker 10 5 7
+Error: customer.txt has no customers.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: numero faltando (7,5)
+$ ./banker 10 5 7
+Error: customer.txt line 2: expected 3 values (one per resource given on the command line), but found 2.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: numero sobrando (7,5,3,1)
+$ ./banker 10 5 7
+Error: customer.txt line 1: expected 3 values (one per resource given on the command line), but found 4.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: campo vazio (7,,3)
+$ ./banker 10 5 7
+Error: customer.txt line 1: "" is not a valid non-negative integer.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: virgula no fim (7,5,3,)
+$ ./banker 10 5 7
+Error: customer.txt line 1: expected 3 values (one per resource given on the command line), but found 4.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: letras (a,b,c)
+$ ./banker 10 5 7
+Error: customer.txt line 1: "a" is not a valid non-negative integer.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: espacos (7, 5, 3)
+$ ./banker 10 5 7
+Error: customer.txt line 1: " 5" is not a valid non-negative integer.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: negativo (-7,5,3)
+$ ./banker 10 5 7
+Error: customer.txt line 1: "-7" is not a valid non-negative integer.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: linha vazia no meio
+$ ./banker 10 5 7
+Error: customer.txt line 2: empty line (empty lines are only allowed at the end of the file).
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: linhas vazias no fim (valido)
+$ ./banker 10 5 7
+>> OK (codigo de saida 0)
+result.txt:
+Allocate to customer 0 the resources 1 0 0
+--------------------------------------------------------------
+TESTE: quebra de linha Windows (valido)
+$ ./banker 10 5 7
+>> OK (codigo de saida 0)
+result.txt:
+Allocate to customer 0 the resources 1 0 0
+--------------------------------------------------------------
+TESTE: sem \n na ultima linha (valido)
+$ ./banker 10 5 7
+>> OK (codigo de saida 0)
+result.txt:
+Allocate to customer 0 the resources 1 0 0
+--------------------------------------------------------------
+TESTE: maximo maior que o total (valido, pedido negado)
+$ ./banker 10 5 7
+>> OK (codigo de saida 0)
+result.txt:
+The customer 0 request 1 0 0 was denied because result in an unsafe state
+==============================================================
+ 4. commands.txt
+==============================================================
+--------------------------------------------------------------
+TESTE: commands.txt nao existe
+$ ./banker 10 5 7
+Error: could not open commands.txt (it does not exist or cannot be read).
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: commands.txt vazio
+$ ./banker 10 5 7
+Error: commands.txt has no commands.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: comando desconhecido (XX)
+$ ./banker 10 5 7
+Error: commands.txt line 1: unknown command "XX 0 1 0 0" (expected RQ, RL or *).
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: comando minusculo (rq)
+$ ./banker 10 5 7
+Error: commands.txt line 1: unknown command "rq 0 1 0 0" (expected RQ, RL or *).
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: RQ sem numeros
+$ ./banker 10 5 7
+Error: commands.txt line 1: expected 4 values after RQ (customer number + 3 resources given on the command line), but found 0.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: recurso faltando
+$ ./banker 10 5 7
+Error: commands.txt line 1: expected 4 values after RQ (customer number + 3 resources given on the command line), but found 3.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: recurso sobrando
+$ ./banker 10 5 7
+Error: commands.txt line 1: expected 4 values after RQ (customer number + 3 resources given on the command line), but found 5.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: espaco duplo
+$ ./banker 10 5 7
+Error: commands.txt line 1: expected 4 values after RQ (customer number + 3 resources given on the command line), but found 5.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: espaco no fim da linha
+$ ./banker 10 5 7
+Error: commands.txt line 1: expected 4 values after RQ (customer number + 3 resources given on the command line), but found 5.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: numero negativo
+$ ./banker 10 5 7
+Error: commands.txt line 1: "-1" is not a valid non-negative integer.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: cliente inexistente (5)
+$ ./banker 10 5 7
+Error: commands.txt line 1: customer 5 does not exist (valid customers: 0 to 4).
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: asterisco com espaco
+$ ./banker 10 5 7
+Error: commands.txt line 1: unknown command "* " (expected RQ, RL or *).
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: linha vazia no meio
+$ ./banker 10 5 7
+Error: commands.txt line 2: empty line (empty lines are only allowed at the end of the file).
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: erro so na ultima linha (nada pode ser executado)
+$ ./banker 10 5 7
+Error: commands.txt line 3: customer 9 does not exist (valid customers: 0 to 4).
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: quebra de linha Windows (valido)
+$ ./banker 10 5 7
+>> OK (codigo de saida 0)
+result.txt:
+Allocate to customer 0 the resources 1 0 0
+MAXIMUM   |   ALLOCATION  |   NEED
+7 5 3     |   1 0 0       |   6 5 3 
+3 2 2     |   0 0 0       |   3 2 2 
+9 0 2     |   0 0 0       |   9 0 2 
+2 2 2     |   0 0 0       |   2 2 2 
+4 3 3     |   0 0 0       |   4 3 3 
+AVAILABLE 9 5 7 
+--------------------------------------------------------------
+TESTE: pedido zero (valido)
+$ ./banker 10 5 7
+>> OK (codigo de saida 0)
+result.txt:
+Allocate to customer 0 the resources 0 0 0
+--------------------------------------------------------------
+TESTE: RL de quem nao tem (valido, recusado no result.txt)
+$ ./banker 10 5 7
+>> OK (codigo de saida 0)
+result.txt:
+The customer 1 release 1 0 0 was denied because exceed its allocation
+--------------------------------------------------------------
+TESTE: RQ, RL e RL de novo (valido)
+$ ./banker 10 5 7
+>> OK (codigo de saida 0)
+result.txt:
+Allocate to customer 0 the resources 1 1 1
+Release from customer 0 the resources 1 1 1
+The customer 0 release 1 0 0 was denied because exceed its allocation
+MAXIMUM   |   ALLOCATION  |   NEED
+7 5 3     |   0 0 0       |   7 5 3 
+3 2 2     |   0 0 0       |   3 2 2 
+9 0 2     |   0 0 0       |   9 0 2 
+2 2 2     |   0 0 0       |   2 2 2 
+4 3 3     |   0 0 0       |   4 3 3 
+AVAILABLE 10 5 7 
+==============================================================
+ RESUMO: 43 passaram, 0 falharam
+==============================================================
+
+Script done on 2026-11-12 17:08:22-03:00 [COMMAND_EXIT_CODE="0"]
+Script started on 2026-11-12 17:37:26-03:00 [COMMAND="date; whoami; pwd; bash testes.sh" TERM="xterm-256color" TTY="/dev/pts/4" COLUMNS="173" LINES="34"]
+Thu Nov 12 17:37:26 -03 2026
+miltonlnx
+/home/miltonlnx/Infra-SFT/Algoritmo_Banqueiro/jmbn
+==============================================================
+ 1. EXEMPLO DO PROFESSOR
+==============================================================
+--------------------------------------------------------------
+TESTE: arquivos do professor
+$ ./banker 10 5 7
+>> OK (codigo de saida 0)
+result.txt:
+Allocate to customer 0 the resources 0 2 1
+Allocate to customer 2 the resources 3 0 2
+Allocate to customer 1 the resources 2 0 0
+Allocate to customer 4 the resources 0 0 2
+Release from customer 0 the resources 0 1 1
+Allocate to customer 3 the resources 2 1 1
+MAXIMUM   |   ALLOCATION  |   NEED
+7 5 3     |   0 1 0       |   7 4 3 
+3 2 2     |   2 0 0       |   1 2 2 
+9 0 2     |   3 0 2       |   6 0 0 
+2 2 2     |   2 1 1       |   0 1 1 
+4 3 3     |   0 0 2       |   4 3 1 
+AVAILABLE 3 3 2 
+The resources 3 3 2 are not enough to customer 4 request 4 0 0 
+Allocate to customer 1 the resources 1 0 2
+The customer 0 request 0 2 0 was denied because result in an unsafe state
+The customer 2 request 0 1 0 was denied because exceed its maximum allocation
+$ diff result.txt esperado.txt
+>> OK: result.txt IDENTICO ao do professor
+==============================================================
+ 2. ARGUMENTOS DA LINHA DE COMANDO
+==============================================================
+--------------------------------------------------------------
+TESTE: sem argumentos
+$ ./banker 
+Error: no resources were given.
+Usage: ./banker <instances of resource 1> <instances of resource 2> ...
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: argumento com letra
+$ ./banker 10 abc 7
+Error: argument 2 ("abc") is not a valid non-negative integer.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: argumento negativo
+$ ./banker 10 -5 7
+Error: argument 2 ("-5") is not a valid non-negative integer.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: argumento decimal
+$ ./banker 10 5.5 7
+Error: argument 2 ("5.5") is not a valid non-negative integer.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: argumento com sinal +
+$ ./banker 10 +5 7
+Error: argument 2 ("+5") is not a valid non-negative integer.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: argumento maior que um int
+$ ./banker 10 5 2147483648
+Error: argument 3 ("2147483648") is not a valid non-negative integer.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: recursos a menos que o arquivo
+$ ./banker 10 5
+Error: customer.txt line 1: expected 2 values (one per resource given on the command line), but found 3.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: recursos a mais que o arquivo
+$ ./banker 10 5 7 1
+Error: customer.txt line 1: expected 4 values (one per resource given on the command line), but found 3.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: recurso com 0 instancias (valido)
+$ ./banker 0 0 0
+>> OK (codigo de saida 0)
+result.txt:
+Allocate to customer 0 the resources 0 0 0
+MAXIMUM   |   ALLOCATION  |   NEED
+0 0 0     |   0 0 0       |   0 0 0 
+AVAILABLE 0 0 0 
+==============================================================
+ 3. customer.txt
+==============================================================
+--------------------------------------------------------------
+TESTE: customer.txt nao existe
+$ ./banker 10 5 7
+Error: could not open customer.txt (it does not exist or cannot be read).
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: customer.txt vazio
+$ ./banker 10 5 7
+Error: customer.txt has no customers.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: numero faltando (7,5)
+$ ./banker 10 5 7
+Error: customer.txt line 2: expected 3 values (one per resource given on the command line), but found 2.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: numero sobrando (7,5,3,1)
+$ ./banker 10 5 7
+Error: customer.txt line 1: expected 3 values (one per resource given on the command line), but found 4.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: campo vazio (7,,3)
+$ ./banker 10 5 7
+Error: customer.txt line 1: "" is not a valid non-negative integer.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: virgula no fim (7,5,3,)
+$ ./banker 10 5 7
+Error: customer.txt line 1: expected 3 values (one per resource given on the command line), but found 4.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: letras (a,b,c)
+$ ./banker 10 5 7
+Error: customer.txt line 1: "a" is not a valid non-negative integer.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: espacos (7, 5, 3)
+$ ./banker 10 5 7
+Error: customer.txt line 1: " 5" is not a valid non-negative integer.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: negativo (-7,5,3)
+$ ./banker 10 5 7
+Error: customer.txt line 1: "-7" is not a valid non-negative integer.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: linha vazia no meio
+$ ./banker 10 5 7
+Error: customer.txt line 2: empty line (empty lines are only allowed at the end of the file).
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: linhas vazias no fim (valido)
+$ ./banker 10 5 7
+>> OK (codigo de saida 0)
+result.txt:
+Allocate to customer 0 the resources 1 0 0
+--------------------------------------------------------------
+TESTE: quebra de linha Windows (valido)
+$ ./banker 10 5 7
+>> OK (codigo de saida 0)
+result.txt:
+Allocate to customer 0 the resources 1 0 0
+--------------------------------------------------------------
+TESTE: sem \n na ultima linha (valido)
+$ ./banker 10 5 7
+>> OK (codigo de saida 0)
+result.txt:
+Allocate to customer 0 the resources 1 0 0
+--------------------------------------------------------------
+TESTE: maximo maior que o total (valido, pedido negado)
+$ ./banker 10 5 7
+>> OK (codigo de saida 0)
+result.txt:
+The customer 0 request 1 0 0 was denied because result in an unsafe state
+==============================================================
+ 4. commands.txt
+==============================================================
+--------------------------------------------------------------
+TESTE: commands.txt nao existe
+$ ./banker 10 5 7
+Error: could not open commands.txt (it does not exist or cannot be read).
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: commands.txt vazio
+$ ./banker 10 5 7
+Error: commands.txt has no commands.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: comando desconhecido (XX)
+$ ./banker 10 5 7
+Error: commands.txt line 1: unknown command "XX 0 1 0 0" (expected RQ, RL or *).
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: comando minusculo (rq)
+$ ./banker 10 5 7
+Error: commands.txt line 1: unknown command "rq 0 1 0 0" (expected RQ, RL or *).
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: RQ sem numeros
+$ ./banker 10 5 7
+Error: commands.txt line 1: expected 4 values after RQ (customer number + 3 resources given on the command line), but found 0.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: recurso faltando
+$ ./banker 10 5 7
+Error: commands.txt line 1: expected 4 values after RQ (customer number + 3 resources given on the command line), but found 3.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: recurso sobrando
+$ ./banker 10 5 7
+Error: commands.txt line 1: expected 4 values after RQ (customer number + 3 resources given on the command line), but found 5.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: espaco duplo
+$ ./banker 10 5 7
+Error: commands.txt line 1: expected 4 values after RQ (customer number + 3 resources given on the command line), but found 5.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: espaco no fim da linha
+$ ./banker 10 5 7
+Error: commands.txt line 1: expected 4 values after RQ (customer number + 3 resources given on the command line), but found 5.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: numero negativo
+$ ./banker 10 5 7
+Error: commands.txt line 1: "-1" is not a valid non-negative integer.
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: cliente inexistente (5)
+$ ./banker 10 5 7
+Error: commands.txt line 1: customer 5 does not exist (valid customers: 0 to 4).
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: asterisco com espaco
+$ ./banker 10 5 7
+Error: commands.txt line 1: unknown command "* " (expected RQ, RL or *).
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: linha vazia no meio
+$ ./banker 10 5 7
+Error: commands.txt line 2: empty line (empty lines are only allowed at the end of the file).
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: erro so na ultima linha (nada pode ser executado)
+$ ./banker 10 5 7
+Error: commands.txt line 3: customer 9 does not exist (valid customers: 0 to 4).
+>> OK (codigo de saida 1)
+--------------------------------------------------------------
+TESTE: quebra de linha Windows (valido)
+$ ./banker 10 5 7
+>> OK (codigo de saida 0)
+result.txt:
+Allocate to customer 0 the resources 1 0 0
+MAXIMUM   |   ALLOCATION  |   NEED
+7 5 3     |   1 0 0       |   6 5 3 
+3 2 2     |   0 0 0       |   3 2 2 
+9 0 2     |   0 0 0       |   9 0 2 
+2 2 2     |   0 0 0       |   2 2 2 
+4 3 3     |   0 0 0       |   4 3 3 
+AVAILABLE 9 5 7 
+--------------------------------------------------------------
+TESTE: pedido zero (valido)
+$ ./banker 10 5 7
+>> OK (codigo de saida 0)
+result.txt:
+Allocate to customer 0 the resources 0 0 0
+--------------------------------------------------------------
+TESTE: RL de quem nao tem (valido, recusado no result.txt)
+$ ./banker 10 5 7
+>> OK (codigo de saida 0)
+result.txt:
+The customer 1 release 1 0 0 was denied because exceed its allocation
+--------------------------------------------------------------
+TESTE: RQ, RL e RL de novo (valido)
+$ ./banker 10 5 7
+>> OK (codigo de saida 0)
+result.txt:
+Allocate to customer 0 the resources 1 1 1
+Release from customer 0 the resources 1 1 1
+The customer 0 release 1 0 0 was denied because exceed its allocation
+MAXIMUM   |   ALLOCATION  |   NEED
+7 5 3     |   0 0 0       |   7 5 3 
+3 2 2     |   0 0 0       |   3 2 2 
+9 0 2     |   0 0 0       |   9 0 2 
+2 2 2     |   0 0 0       |   2 2 2 
+4 3 3     |   0 0 0       |   4 3 3 
+AVAILABLE 10 5 7 
+==============================================================
+ 5. FORCA BRUTA (sequencias aleatorias)
+==============================================================
+>> OK: 200 rodadas aleatorias, todas consistentes e seguras
+==============================================================
+ RESUMO: 44 passaram, 0 falharam
+==============================================================
+
+Script done on 2026-11-12 17:37:28-03:00 [COMMAND_EXIT_CODE="0"]
