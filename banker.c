@@ -122,3 +122,121 @@ int estado_seguro(Banco *banco){
 
     return terminados == n;
 }
+
+static int escreve_vetor(FILE *saida, const int *vetor, int tamanho){
+    int j;
+    int escritos = 0;
+
+    for (j = 0; j < tamanho; j++){
+        if (j > 0){
+            escritos += fprintf(saida, " ");
+        }
+        escritos += fprintf(saida, "%d", vetor[j]);
+    }
+    return escritos;
+}
+
+int processa_requisicao(Banco *banco, int cliente, const int *request, FILE *saida){
+    int m = banco->num_recursos;
+    int j;
+
+    if (!menor_ou_igual(request, banco->need[cliente], m)){
+        fprintf(saida, "The customer %d request ", cliente);
+        escreve_vetor(saida, request, m);
+        fprintf(saida, " was denied because exceed its maximum allocation\n");
+        return 0;
+    }
+
+    if (!menor_ou_igual(request, banco->available, m)){
+        fprintf(saida, "The resources ");
+        escreve_vetor(saida, banco->available, m);
+        fprintf(saida, " are not enough to customer %d request ", cliente);
+        escreve_vetor(saida, request, m);
+        fprintf(saida, " \n");
+        return 0;
+    }
+
+    for (j = 0; j < m; j++){
+        banco->available[j] -= request[j];
+        banco->allocation[cliente][j] += request[j];
+        banco->need[cliente][j] -= request[j];
+    }
+
+    if (estado_seguro(banco)){
+        fprintf(saida, "Allocate to customer %d the resources ", cliente);
+        escreve_vetor(saida, request, m);
+        fprintf(saida, "\n");
+        return 1;
+    }
+
+    for (j = 0; j < m; j++){
+        banco->available[j] += request[j];
+        banco->allocation[cliente][j] -= request[j];
+        banco->need[cliente][j] += request[j];
+    }
+
+    fprintf(saida, "The customer %d request ", cliente);
+    escreve_vetor(saida, request, m);
+    fprintf(saida, " was denied because result in an unsafe state\n");
+    return 0;
+}
+
+int processa_liberacao(Banco *banco, int cliente, const int *release, FILE *saida){
+    int m = banco->num_recursos;
+    int j;
+
+    if (!menor_ou_igual(release, banco->allocation[cliente], m)){
+        fprintf(saida, "The customer %d release ", cliente);
+        escreve_vetor(saida, release, m);
+        fprintf(saida, " was denied because exceed its allocation\n");
+        return 0;
+    }
+
+    for (j = 0; j < m; j++){
+        banco->allocation[cliente][j] -= release[j];
+        banco->available[j] += release[j];
+        banco->need[cliente][j] += release[j];
+    }
+
+    fprintf(saida, "Release from customer %d the resources ", cliente);
+    escreve_vetor(saida, release, m);
+    fprintf(saida, "\n");
+    return 1;
+}
+
+static void completa_espacos(FILE *saida, int escritos, int largura){
+    while (escritos < largura){
+        fputc(' ', saida);
+        escritos++;
+    }
+}
+
+void imprime_estado(Banco *banco, FILE *saida){
+    int n = banco->num_clientes;
+    int m = banco->num_recursos;
+    int i, j;
+    int escritos;
+
+    fprintf(saida, "MAXIMUM   |   ALLOCATION  |   NEED\n");
+
+    for (i = 0; i < n; i++){
+        escritos = escreve_vetor(saida, banco->maximum[i], m);
+        completa_espacos(saida, escritos, 10);
+        fprintf(saida, "|   ");
+
+        escritos = escreve_vetor(saida, banco->allocation[i], m);
+        completa_espacos(saida, escritos, 12);
+        fprintf(saida, "|   ");
+
+        for (j = 0; j < m; j++){
+            fprintf(saida, "%d ", banco->need[i][j]);
+        }
+        fprintf(saida, "\n");
+    }
+
+    fprintf(saida, "AVAILABLE ");
+    for (j = 0; j < m; j++){
+        fprintf(saida, "%d ", banco->available[j]);
+    }
+    fprintf(saida, "\n");
+}
