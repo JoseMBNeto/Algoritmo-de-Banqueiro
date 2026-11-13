@@ -23,4 +23,7 @@ log:
 clean:
 	rm -f $(TARGET) $(OBJS)
 
-.PHONY: all clean log
+teste: $(TARGET)
+	script -a evidencias.log -c "date; whoami; pwd; bash testes.sh"
+
+.PHONY: all clean log teste
